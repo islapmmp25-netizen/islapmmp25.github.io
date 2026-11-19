@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FOCUS - Tu Asistente de Estudio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            fredoka: ['Fredoka', 'sans-serif'],
+            quicksand: ['Quicksand', 'sans-serif'],
+          },
+          colors: {
+            canva: {
+              purple: '#8B5CF6',
+              lightPurple: '#DDD6FE',
+              pink: '#EC4899',
+              lightPink: '#FCE7F3',
+              yellow: '#F59E0B',
+              lightYellow: '#FEF3C7',
+              mint: '#10B981',
+              lightMint: '#D1FAE5',
+              blue: '#3B82F6',
+              lightBlue: '#DBEAFE',
+              card: '#FFFFFF',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    h1, h2, h3, .font-title {
+      font-family: 'Fredoka', sans-serif;
+    }
+    .btn-bounce:active {
+      transform: scale(0.95);
+    }
+    .sepia-mode {
+      filter: sepia(0.35) hue-rotate(-10deg) saturate(1.1);
+    }
+    .high-contrast {
+      filter: contrast(1.35) brightness(0.95);
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .animate-shake {
+      animation: shake 0.4s ease-in-out;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.05);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(139, 92, 246, 0.3);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-2 sm:p-4">
+
+<div id="phone-container" class="w-full max-w-md bg-gradient-to-b from-purple-100 via-pink-50 to-yellow-50 rounded-[40px] shadow-2xl overflow-hidden border-8 border-slate-800 flex flex-col h-[850px] relative transition-all duration-300">
+
+  <!-- Header Superior estilo Smartphone con Reloj y Botones -->
+  <header class="bg-white/80 backdrop-blur-md px-5 pt-3 pb-2 flex justify-between items-center z-20 border-b border-purple-100">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-title text-lg shadow-md">
+        ✨
+      </div>
+      <div>
+        <h1 class="font-title text-lg leading-none text-purple-900">FOCUS</h1>
+        <p class="text-[10px] text-purple-600 font-semibold tracking-wider uppercase">Paso a Paso</p>
+      </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="flex items-center gap-2">
+      <button onclick="toggleVoice()" id="voice-btn" class="p-1.5 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors" title="Lectura en Voz Alta">
+        🔊
+      </button>
+      <div class="bg-amber-100 border border-amber-300 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+        <span class="text-base">⭐</span>
+        <span id="star-count" class="font-title text-amber-700 text-sm">120</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido Dinámico de las Pantallas -->
+  <main id="app-content" class="flex-1 overflow-y-auto p-4 flex flex-col">
+    <!-- Se inyecta dinámicamente con JavaScript -->
+  </main>
+
+  <!-- Navegación Inferior Estilo App Móvil -->
+  <nav class="bg-white/90 backdrop-blur-md border-t border-purple-100 p-2 flex justify-around items-center z-20">
+    <button onclick="navigateTo('home')" id="nav-home" class="flex flex-col items-center gap-0.5 text-purple-600 p-2 rounded-2xl hover:bg-purple-50 w-16 transition-all">
+      <span class="text-xl">🏠</span>
+      <span class="text-[11px] font-bold">Inicio</span>
+    </button>
+    <button onclick="navigateTo('challenges')" id="nav-challenges" class="flex flex-col items-center gap-0.5 text-slate-400 p-2 rounded-2xl hover:bg-purple-50 w-16 transition-all">
+      <span class="text-xl">🎯</span>
+      <span class="text-[11px] font-bold">Retos</span>
+    </button>
+    <button onclick="navigateTo('shop')" id="nav-shop" class="flex flex-col items-center gap-0.5 text-slate-400 p-2 rounded-2xl hover:bg-purple-50 w-16 transition-all">
+      <span class="text-xl">🦉</span>
+      <span class="text-[11px] font-bold">Mascota</span>
+    </button>
+    <button onclick="navigateTo('settings')" id="nav-settings" class="flex flex-col items-center gap-0.5 text-slate-400 p-2 rounded-2xl hover:bg-purple-50 w-16 transition-all">
+      <span class="text-xl">⚙️</span>
+      <span class="text-[11px] font-bold">Ajustes</span>
+    </button>
+  </nav>
+
+</div>
+
+<script>
+  // Estado global de la aplicación
+  const state = {
+    currentScreen: 'home',
+    stars: 120,
+    voiceEnabled: false,
+    sepiaMode: false,
+    contrastMode: false,
+    activeChallenge: null,
+    currentStepIndex: 0,
+    equippedHat: 'none',
+    unlockedHats: ['none']
+  };
+
+  // Base de datos de los 4 retos coordinados
+  const challengesData = [
+    {
+      id: 'task-org',
+      title: 'Organiza tu Tarea Escolar',
+      category: 'Organización',
+      color: 'from-pink-400 to-purple-500',
+      badgeColor: 'bg-pink-100 text-pink-700',
+      icon: '📚',
+      starsReward: 50,
+      description: 'Aprende a dividir tus deberes en pasos sencillos para terminar rápido.',
+      steps: [
+        {
+          title: 'Paso 1: Revisa tu agenda',
+          detail: 'Saca todos tus cuadernos y nota qué tareas tienes para mañana.',
+          icon: '📝',
+          quiz: {
+            question: '¿Qué es lo primero que debes hacer antes de empezar a escribir?',
+            options: [
+              { text: 'Jugar con el celular', icon: '📱', correct: false },
+              { text: 'Anotar y revisar qué tareas tienes', icon: '📋', correct: true },
+              { text: 'Dormir una siesta', icon: '😴', correct: false }
+            ],
+            explanation: '¡Exacto! Saber qué tareas tienes te ayuda a planear tu tiempo sin estrés.'
+          }
+        },
+        {
+          title: 'Paso 2: Lo más difícil primero',
+          detail: 'Comienza con la tarea que te dé más pereza mientras tu cerebro está con máxima energía.',
+          icon: '🧠',
+          quiz: {
+            question: '¿Por qué conviene hacer la tarea más difícil al principio?',
+            options: [
+              { text: 'Porque tenemos más energía y concentración', icon: '⚡', correct: true },
+              { text: 'Para aburrirnos rápido', icon: '🥱', correct: false },
+              { text: 'No importa el orden', icon: '🎲', correct: false }
+            ],
+            explanation: '¡Muy bien! Cuando inicias, tu cerebro tiene máxima atención.'
+          }
+        },
+        {
+          title: 'Paso 3: Tiempos de enfoque sin distracciones',
+          detail: 'Trabaja con calma y atención. Apaga la televisión y aleja el celular.',
+          icon: '⏱️',
+          quiz: {
+            question: '¿Qué distracción debes alejar mientras estudias?',
+            options: [
+              { text: 'Tus lápices y colores', icon: '✏️', correct: false },
+              { text: 'Televisión y videos juguetones', icon: '📺', correct: true },
+              { text: 'Tu vaso con agua', icon: '💧', correct: false }
+            ],
+            explanation: '¡Excelente! Sin distracciones terminas el doble de rápido.'
+          }
+        },
+        {
+          title: 'Paso 4: Guarda todo al terminar',
+          detail: 'Coloca cada libreta terminada en tu mochila de inmediato.',
+          icon: '✅',
+          quiz: {
+            question: '¿Qué haces al terminar cada tarea?',
+            options: [
+              { text: 'Dejarla tirada en el suelo', icon: '❌', correct: false },
+              { text: 'Guardarla en la mochila', icon: '🎒', correct: true },
+              { text: 'Regalarla a tu mascota', icon: '🐶', correct: false }
+            ],
+            explanation: '¡Así se hace! Mantienes el orden y nada se pierde.'
+          }
+        }
+      ]
+    },
+    {
+      id: 'backpack-prep',
+      title: 'Prepara tu Mochila Lista',
+      category: 'Rutinas',
+      color: 'from-blue-400 to-indigo-500',
+      badgeColor: 'bg-blue-100 text-blue-700',
+      icon: '🎒',
+      starsReward: 40,
+      description: 'Prepara tus útiles la noche anterior para evitar olvidos.',
+      steps: [
+        {
+          title: 'Paso 1: Horario de clases',
+          detail: 'Mira tu horario del día siguiente y escoge solo los libros necesarios.',
+          icon: '📅',
+          quiz: {
+            question: '¿Para qué nos sirve consultar el horario de clases?',
+            options: [
+              { text: 'Para llevar solo los libros que usaremos', icon: '📖', correct: true },
+              { text: 'Para cargar libros extra por peso', icon: '🏋️', correct: false },
+              { text: 'Para ver qué ropa ponernos', icon: '👕', correct: false }
+            ],
+            explanation: '¡Fantástico! Evitas cargar peso innecesario.'
+          }
+        },
+        {
+          title: 'Paso 2: Revisa tu cartuchera',
+          detail: 'Verifica que lleves lápiz, borrador, sacapuntas y colores con punta.',
+          icon: '✏️',
+          quiz: {
+            question: '¿Qué elementos básicos deben estar en tu estuche o cartuchera?',
+            options: [
+              { text: 'Un control remoto de TV', icon: '📺', correct: false },
+              { text: 'Lápiz, borrador y sacapuntas', icon: '✏️', correct: true },
+              { text: 'Platos de comida', icon: '🍽️', correct: false }
+            ],
+            explanation: '¡Súper! Tener tus herramientas listas ayuda a concentrarte.'
+          }
+        },
+        {
+          title: 'Paso 3: Deja la mochila en la puerta',
+          detail: 'Coloca tu mochila cerca de la salida antes de irte a dormir.',
+          icon: '🚪',
+          quiz: {
+            question: '¿Por qué dejamos la mochila cerca de la salida de casa?',
+            options: [
+              { text: 'Para salir tranquilos sin prisas en la mañana', icon: '☀️', correct: true },
+              { text: 'Para que juegue con el perro', icon: '🐕', correct: false },
+              { text: 'Para esconderla', icon: '🙈', correct: false }
+            ],
+            explanation: '¡Muy bien! Iniciarás la mañana sin estrés ni carreras.'
+          }
+        }
+      ]
+    },
+    {
+      id: 'study-space',
+      title: 'Mi Rincón de Estudio',
+      category: 'Espacio',
+      color: 'from-amber-400 to-orange-500',
+      badgeColor: 'bg-amber-100 text-amber-700',
+      icon: '🎨',
+      starsReward: 45,
+      description: 'Diseña y limpia tu mesa para concentrarte como un campeón.',
+      steps: [
+        {
+          title: 'Paso 1: Despeja la mesa',
+          detail: 'Quita platos, juguetes o papeles que no sean de tu tarea actual.',
+          icon: '🧹',
+          quiz: {
+            question: '¿Qué debe haber sobre tu escritorio de estudio?',
+            options: [
+              { text: 'Solamente el material de la tarea actual', icon: '📚', correct: true },
+              { text: 'Juguetes, comida y consolas', icon: '🎮', correct: false },
+              { text: 'Toda la ropa limpia de la semana', icon: '🧺', correct: false }
+            ],
+            explanation: '¡Exacto! Un espacio despejado te da mucha paz visual.'
+          }
+        },
+        {
+          title: 'Paso 2: Buena iluminación',
+          detail: 'Asegúrate de tener una lámpara encendida o luz natural suficiente.',
+          icon: '💡',
+          quiz: {
+            question: '¿Qué ayuda a no cansar la vista al leer o escribir?',
+            options: [
+              { text: 'Estudiar totalmente a oscuras', icon: '🌙', correct: false },
+              { text: 'Tener buena luz en tu lugar de trabajo', icon: '💡', correct: true },
+              { text: 'Usar lentes de sol de noche', icon: '🕶️', correct: false }
+            ],
+            explanation: '¡Muy bien! Cuidas tus ojos y estudias más cómodo.'
+          }
+        },
+        {
+          title: 'Paso 3: Postura cómoda',
+          detail: 'Siéntate derecho con la espalda apoyada en el respaldo de la silla.',
+          icon: '🪑',
+          quiz: {
+            question: '¿Cuál es la forma correcta de sentarte a estudiar?',
+            options: [
+              { text: 'Acostado boca abajo en el piso', icon: '🛋️', correct: false },
+              { text: 'Espalda recta y apoyada en la silla', icon: '🪑', correct: true },
+              { text: 'Encorvado muy cerca del cuaderno', icon: '🙇', correct: false }
+            ],
+            explanation: '¡Genial! Evitas dolores de espalda y fatiga.'
+          }
+        }
+      ]
+    },
+    {
+      id: 'routine-start',
+      title: 'Rutina de Enfoque Rápido',
+      category: 'Mindfulness',
+      color: 'from-emerald-400 to-teal-600',
+      badgeColor: 'bg-emerald-100 text-emerald-700',
+      icon: '⏰',
+      starsReward: 35,
+      description: 'Prepárate mentalmente en unos momentos antes de comenzar.',
+      steps: [
+        {
+          title: 'Paso 1: Toma un vaso de agua',
+          detail: 'Un sorbo de agua fresca despierta y activa las células de tu cerebro.',
+          icon: '🥛',
+          quiz: {
+            question: '¿Cómo le ayuda el agua a tu cerebro?',
+            options: [
+              { text: 'Le da hidratación para funcionar mejor', icon: '💧', correct: true },
+              { text: 'Le da sueño de inmediato', icon: '💤', correct: false },
+              { text: 'No hace ningún efecto', icon: '🚫', correct: false }
+            ],
+            explanation: '¡Correcto! Estar hidratado mejora tu memoria y energía.'
+          }
+        },
+        {
+          title: 'Paso 2: Respiración profunda 3-3-3',
+          detail: 'Inhala en 3 segundos, sostén 3 segundos y exhala despacio.',
+          icon: '🌬️',
+          quiz: {
+            question: '¿Qué sientes al hacer respiraciones lentas y profundas?',
+            options: [
+              { text: 'Calma, enfoque y tranquilidad', icon: '🧘', correct: true },
+              { text: 'Ganas de correr una maratón', icon: '🏃', correct: false },
+              { text: 'Enojo o molestia', icon: '😡', correct: false }
+            ],
+            explanation: '¡Perfecto! Calmas los nervios y preparas tu mente.'
+          }
+        },
+        {
+          title: 'Paso 3: Afirmación positiva',
+          detail: 'Di en voz alta: "¡Soy capaz, inteligente y puedo lograrlo paso a paso!"',
+          icon: '⭐',
+          quiz: {
+            question: '¿Qué debes decirte antes de comenzar una tarea difícil?',
+            options: [
+              { text: '"No me sale nada bien"', icon: '😞', correct: false },
+              { text: '"¡Yo puedo hacerlo paso a paso!"', icon: '🌟', correct: true },
+              { text: '"Es imposible de terminar"', icon: '❌', correct: false }
+            ],
+            explanation: '¡Así se habla! Tu actitud positiva te da súper poderes.'
+          }
+        }
+      ]
+    }
+  ];
+
+  // Accesorios de la Tienda de Foco
+  const shopItems = [
+    { id: 'none', name: 'Sin Accesorio', icon: '🦉', price: 0 },
+    { id: 'hat-party', name: 'Gorro Fiestero', icon: '🥳', price: 30 },
+    { id: 'glasses-cool', name: 'Lentes de Sol', icon: '🕶️', price: 50 },
+    { id: 'crown-gold', name: 'Corona Real', icon: '👑', price: 80 },
+    { id: 'cap-grad', name: 'Birrete Sabio', icon: '🎓', price: 100 }
+  ];
+
+  function navigateTo(screen, param = null) {
+    state.currentScreen = screen;
+    
+    // Actualizar estados visuales de la barra inferior
+    ['home', 'challenges', 'shop', 'settings'].forEach(id => {
+      const btn = document.getElementById(`nav-${id}`);
+      if (btn) {
+        if (id === screen) {
+          btn.classList.remove('text-slate-400');
+          btn.classList.add('text-purple-600', 'bg-purple-50');
+        } else {
+          btn.classList.remove('text-purple-600', 'bg-purple-50');
+          btn.classList.add('text-slate-400');
+        }
+      }
+    });
+
+    const appContent = document.getElementById('app-content');
+
+    if (screen === 'home') {
+      renderHomeScreen(appContent);
+    } else if (screen === 'challenges') {
+      renderChallengesScreen(appContent);
+    } else if (screen === 'activeStep') {
+      renderActiveStepScreen(appContent);
+    } else if (screen === 'quiz') {
+      renderQuizScreen(appContent);
+    } else if (screen === 'shop') {
+      renderShopScreen(appContent);
+    } else if (screen === 'settings') {
+      renderSettingsScreen(appContent);
+    }
+
+    speakCurrentText();
+  }
+
+  // PANTALLA INICIO
+  function renderHomeScreen(container) {
+    container.innerHTML = `
+      <div class="space-y-4 animate-fadeIn">
+        <div class="bg-gradient-to-r from-purple-500 via-pink-500 to-amber-400 rounded-3xl p-5 text-white shadow-xl relative overflow-hidden">
+          <div class="relative z-10">
+            <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">¡Bienvenido!</span>
+            <h2 class="text-2xl font-title mt-2 leading-tight">¡Haz de estudiar un juego divertido! 🚀</h2>
+            <p class="text-xs text-purple-100 mt-1 max-w-[85%]">Aprende paso a paso, responde preguntas sencillas y viste a Foco con estrellas.</p>
+            <button onclick="navigateTo('challenges')" class="mt-4 bg-white text-purple-700 font-title px-5 py-2.5 rounded-2xl text-sm shadow-md hover:bg-purple-50 active:scale-95 transition-all flex items-center gap-2">
+              <span>¡Comenzar mi reto!</span>
+              <span>➡️</span>
+            </button>
+          </div>
+          <div class="absolute -right-4 -bottom-4 text-7xl opacity-30 select-none">🎯</div>
+        </div>
+
+        <!-- Mascota Foco -->
+        <div class="bg-white rounded-3xl p-4 shadow-sm border border-purple-100 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-100 to-yellow-200 border border-amber-300 flex items-center justify-center text-3xl shadow-inner relative">
+              🦉
+              ${state.equippedHat !== 'none' ? `<span class="absolute -top-2 -right-1 text-2xl">${getHatIcon(state.equippedHat)}</span>` : ''}
+            </div>
+            <div>
+              <h3 class="font-title text-purple-900 text-base">Foco el Búho</h3>
+              <p class="text-xs text-slate-500">Tu guía de aprendizaje</p>
+              <div class="flex items-center gap-1 mt-1 text-xs text-amber-600 font-bold">
+                <span>⭐ ${state.stars} Estrellas acumuladas</span>
+              </div>
+            </div>
+          </div>
+          <button onclick="navigateTo('shop')" class="bg-amber-50 text-amber-700 border border-amber-200 p-2.5 rounded-2xl hover:bg-amber-100 text-xs font-bold flex flex-col items-center">
+            <span>🛍️</span>
+            <span>Tienda</span>
+          </button>
+        </div>
+
+        <!-- Lista de Retos Rapida -->
+        <div>
+          <div class="flex justify-between items-center mb-2 px-1">
+            <h3 class="font-title text-purple-900 text-base">Retos Recomendados</h3>
+            <button onclick="navigateTo('challenges')" class="text-xs font-bold text-purple-600 hover:underline">Ver todos</button>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3">
+            ${challengesData.slice(0, 2).map(c => `
+              <div onclick="startChallenge('${c.id}')" class="bg-white p-4 rounded-3xl border border-purple-100 shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr ${c.color} flex items-center justify-center text-2xl text-white shadow-sm">
+                    ${c.icon}
+                  </div>
+                  <div>
+                    <span class="${c.badgeColor} text-[10px] font-bold px-2 py-0.5 rounded-full">${c.category}</span>
+                    <h4 class="font-title text-slate-800 text-sm mt-0.5">${c.title}</h4>
+                    <p class="text-xs text-slate-400">${c.steps.length} pasos sin prisas</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-xl text-xs font-bold text-amber-600 border border-amber-200">
+                  <span>+${c.starsReward}</span>
+                  <span>⭐</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // PANTALLA LISTA COMPLETA DE RETOS
+  function renderChallengesScreen(container) {
+    container.innerHTML = `
+      <div class="space-y-4 animate-fadeIn">
+        <div>
+          <h2 class="font-title text-2xl text-purple-900">Todos los Retos 🎯</h2>
+          <p class="text-xs text-slate-500">Selecciona el que quieras practicar hoy</p>
+        </div>
+
+        <div class="space-y-3">
+          ${challengesData.map(c => `
+            <div onclick="startChallenge('${c.id}')" class="bg-white p-4 rounded-3xl border border-purple-100 shadow-sm hover:shadow-md transition-all cursor-pointer relative overflow-hidden">
+              <div class="flex items-start justify-between">
+                <div class="flex items-start gap-3">
+                  <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr ${c.color} flex items-center justify-center text-3xl text-white shadow-md">
+                    ${c.icon}
+                  </div>
+                  <div>
+                    <span class="${c.badgeColor} text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">${c.category}</span>
+                    <h3 class="font-title text-slate-800 text-base mt-1">${c.title}</h3>
+                    <p class="text-xs text-slate-500 mt-0.5 leading-snug">${c.description}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <span class="font-semibold text-purple-700">📌 ${c.steps.length} pasos sencillos</span>
+                <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-title flex items-center gap-1 shadow-sm">
+                  <span>Ganancia:</span>
+                  <span class="text-amber-600 font-bold">+${c.starsReward} ⭐</span>
+                </span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function startChallenge(challengeId) {
+    state.activeChallenge = challengesData.find(c => c.id === challengeId);
+    state.currentStepIndex = 0;
+    navigateTo('activeStep');
+  }
+
+  // PANTALLA PASO ACTIVO (MICROAPRENDIZAJE DIRECTO SIN CRONÓMETRO OBLIGATORIO)
+  function renderActiveStepScreen(container) {
+    const challenge = state.activeChallenge;
+    const step = challenge.steps[state.currentStepIndex];
+    const totalSteps = challenge.steps.length;
+    const progressPercent = Math.round(((state.currentStepIndex + 1) / totalSteps) * 100);
+
+    container.innerHTML = `
+      <div class="flex-1 flex flex-col justify-between animate-fadeIn">
+        <div>
+          <!-- Barra de Progreso -->
+          <div class="mb-4">
+            <div class="flex justify-between items-center text-xs font-bold text-purple-900 mb-1">
+              <span>${challenge.title}</span>
+              <span>Paso ${state.currentStepIndex + 1} de ${totalSteps}</span>
+            </div>
+            <div class="w-full h-3 bg-purple-100 rounded-full overflow-hidden p-0.5 border border-purple-200">
+              <div class="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-300" style="width: ${progressPercent}%"></div>
+            </div>
+          </div>
+
+          <!-- Tarjeta del Paso -->
+          <div class="bg-white rounded-3xl p-6 shadow-md border border-purple-100 text-center relative">
+            <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr ${challenge.color} flex items-center justify-center text-4xl text-white shadow-lg mb-4">
+              ${step.icon}
+            </div>
+
+            <h3 class="font-title text-xl text-purple-950 mb-2">${step.title}</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">${step.detail}</p>
+          </div>
+        </div>
+
+        <!-- Botón para ir directo a la pregunta -->
+        <div class="mt-6">
+          <button onclick="navigateTo('quiz')" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-title py-4 px-6 rounded-2xl shadow-lg hover:opacity-95 active:scale-95 transition-all flex items-center justify-center gap-2 text-base">
+            <span>¡Entendido! Comprobar mi respuesta</span>
+            <span>🧩</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // PANTALLA QUIZ CON REINTENTO INMEDIATO Y BOTONES SIEMPRE ACTIVOS
+  function renderQuizScreen(container) {
+    const challenge = state.activeChallenge;
+    const step = challenge.steps[state.currentStepIndex];
+    const quiz = step.quiz;
+
+    container.innerHTML = `
+      <div class="flex-1 flex flex-col justify-between animate-fadeIn">
+        <div>
+          <div class="text-center mb-4">
+            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Comprobación Lúdica 🧩</span>
+            <h3 class="font-title text-xl text-purple-950 mt-2">${quiz.question}</h3>
+          </div>
+
+          <div class="space-y-3 mt-4" id="quiz-options">
+            ${quiz.options.map((opt, idx) => `
+              <button id="opt-btn-${idx}" onclick="checkAnswer(${idx})" class="w-full bg-white border-2 border-purple-100 hover:border-purple-300 p-4 rounded-2xl shadow-sm text-left flex items-center gap-3 transition-all active:scale-95 group">
+                <span class="text-3xl bg-purple-50 p-2 rounded-xl group-hover:bg-purple-100 transition-colors">${opt.icon}</span>
+                <span class="font-semibold text-slate-800 text-sm flex-1">${opt.text}</span>
+              </button>
+            `).join('')}
+          </div>
+
+          <!-- Feedback dinámico -->
+          <div id="quiz-feedback" class="hidden mt-4 p-4 rounded-2xl text-center"></div>
+        </div>
+
+        <!-- Botón para avanzar si acierta -->
+        <div id="next-step-container" class="hidden mt-6">
+          <button onclick="nextStep()" class="w-full bg-emerald-500 text-white font-title py-4 px-6 rounded-2xl shadow-lg hover:bg-emerald-600 active:scale-95 transition-all flex items-center justify-center gap-2 text-base">
+            <span>Siguiente Paso</span>
+            <span>➡️</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Lógica de reintento en tiempo real (No bloquea los demás botones si se equivoca)
+  function checkAnswer(selectedIndex) {
+    const challenge = state.activeChallenge;
+    const step = challenge.steps[state.currentStepIndex];
+    const quiz = step.quiz;
+    const selected = quiz.options[selectedIndex];
+
+    const targetBtn = document.getElementById(`opt-btn-${selectedIndex}`);
+    const feedbackEl = document.getElementById('quiz-feedback');
+    const nextContainer = document.getElementById('next-step-container');
+
+    feedbackEl.classList.remove('hidden');
+
+    if (selected.correct) {
+      // Marcar botón verde
+      targetBtn.className = 'w-full bg-emerald-50 border-2 border-emerald-500 p-4 rounded-2xl shadow-sm text-left flex items-center gap-3 transition-all';
+      
+      // Lanzar confeti
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      state.stars += 10;
+      updateStarDisplay();
+
+      feedbackEl.className = 'mt-4 p-4 rounded-2xl text-center bg-emerald-100 text-emerald-900 border border-emerald-300 animate-fadeIn';
+      feedbackEl.innerHTML = `
+        <div class="text-xl font-title mb-1">🎉 ¡Excelente! +10 ⭐</div>
+        <p class="text-xs">${quiz.explanation}</p>
+      `;
+
+      // Deshabilitar botones solo cuando acertó
+      document.querySelectorAll('#quiz-options button').forEach(b => b.disabled = true);
+      nextContainer.classList.remove('hidden');
+
+    } else {
+      // Marcar botón en rojo suave y animación de sacudida
+      targetBtn.classList.remove('border-purple-100');
+      targetBtn.classList.add('border-rose-400', 'bg-rose-50', 'animate-shake');
+
+      setTimeout(() => {
+        targetBtn.classList.remove('animate-shake');
+      }, 400);
+
+      feedbackEl.className = 'mt-4 p-4 rounded-2xl text-center bg-amber-100 text-amber-900 border border-amber-300 animate-fadeIn';
+      feedbackEl.innerHTML = `
+        <div class="text-lg font-title mb-1">💡 Inténtalo otra vez</div>
+        <p class="text-xs">¡Esa no es la respuesta, pero puedes tocar otra opción inmediatamente!</p>
+      `;
+    }
+  }
+
+  function nextStep() {
+    const challenge = state.activeChallenge;
+    if (state.currentStepIndex < challenge.steps.length - 1) {
+      state.currentStepIndex++;
+      navigateTo('activeStep');
+    } else {
+      // Reto Completado
+      state.stars += challenge.starsReward;
+      updateStarDisplay();
+
+      confetti({
+        particleCount: 150,
+        spread: 100,
+        origin: { y: 0.5 }
+      });
+
+      const container = document.getElementById('app-content');
+      container.innerHTML = `
+        <div class="flex-1 flex flex-col items-center justify-center text-center p-4 animate-fadeIn">
+          <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-amber-300 via-yellow-400 to-amber-500 flex items-center justify-center text-6xl shadow-xl mb-4 border-4 border-white">
+            🏆
+          </div>
+          <h2 class="font-title text-2xl text-purple-950">¡Reto Completado!</h2>
+          <p class="text-sm text-slate-600 mt-1 max-w-xs">Has terminado "${challenge.title}"</p>
+
+          <div class="my-6 bg-white p-4 rounded-3xl border border-amber-200 shadow-md flex items-center gap-3">
+            <span class="text-3xl">⭐</span>
+            <div class="text-left">
+              <span class="text-xs text-slate-400 uppercase font-bold">¡Premio de Reto!</span>
+              <p class="font-title text-xl text-amber-600">+${challenge.starsReward} Estrellas</p>
+            </div>
+          </div>
+
+          <button onclick="navigateTo('home')" class="w-full max-w-xs bg-purple-600 text-white font-title py-3.5 px-6 rounded-2xl shadow-lg hover:bg-purple-700 active:scale-95 transition-all">
+            ¡Volver al Inicio! 🏠
+          </button>
+        </div>
+      `;
+    }
+  }
+
+  // PANTALLA TIENDA
+  function renderShopScreen(container) {
+    container.innerHTML = `
+      <div class="space-y-4 animate-fadeIn">
+        <div class="text-center">
+          <h2 class="font-title text-2xl text-purple-900">Tienda de Foco 🦉</h2>
+          <p class="text-xs text-slate-500">Usa tus estrellas para equipar accesorios</p>
+        </div>
+
+        <div class="bg-gradient-to-b from-purple-100 to-pink-100 rounded-3xl p-6 text-center border border-purple-200 relative shadow-inner">
+          <div class="w-28 h-28 mx-auto rounded-full bg-white shadow-md flex items-center justify-center text-6xl relative border-4 border-purple-200">
+            🦉
+            ${state.equippedHat !== 'none' ? `<span class="absolute -top-4 text-4xl">${getHatIcon(state.equippedHat)}</span>` : ''}
+          </div>
+          <h3 class="font-title text-lg text-purple-900 mt-3">Tu Mascota Foco</h3>
+          <p class="text-xs text-purple-600 font-bold">Estrellas Disponibles: ⭐ ${state.stars}</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          ${shopItems.map(item => {
+            const isUnlocked = state.unlockedHats.includes(item.id);
+            const isEquipped = state.equippedHat === item.id;
+
+            return `
+              <div class="bg-white p-4 rounded-2xl border border-purple-100 shadow-sm text-center flex flex-col justify-between">
+                <div>
+                  <div class="text-4xl mb-2">${item.icon}</div>
+                  <h4 class="font-title text-slate-800 text-sm">${item.name}</h4>
+                  <p class="text-xs text-amber-600 font-bold mt-1">${item.price === 0 ? 'Gratis' : item.price + ' ⭐'}</p>
+                </div>
+
+                <div class="mt-3">
+                  ${isEquipped ? `
+                    <span class="block bg-emerald-100 text-emerald-700 text-xs font-bold py-1.5 rounded-xl">Equipado ✓</span>
+                  ` : isUnlocked ? `
+                    <button onclick="equipHat('${item.id}')" class="w-full bg-purple-100 text-purple-700 font-title text-xs py-1.5 rounded-xl hover:bg-purple-200 active:scale-95 transition-all">Equipar</button>
+                  ` : `
+                    <button onclick="buyHat('${item.id}', ${item.price})" class="w-full bg-amber-400 text-amber-950 font-title text-xs py-1.5 rounded-xl hover:bg-amber-500 active:scale-95 transition-all shadow-sm">Comprar</button>
+                  `}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // PANTALLA AJUSTES Y ACCESIBILIDAD
+  function renderSettingsScreen(container) {
+    container.innerHTML = `
+      <div class="space-y-4 animate-fadeIn">
+        <div>
+          <h2 class="font-title text-2xl text-purple-900">Ajustes y Accesibilidad ⚙️</h2>
+          <p class="text-xs text-slate-500">Herramientas visuales y de lectura</p>
+        </div>
+
+        <div class="bg-white rounded-3xl p-4 shadow-sm border border-purple-100 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl bg-purple-50 p-2 rounded-xl">🔊</span>
+              <div>
+                <h4 class="font-title text-sm text-slate-800">Lectura en Voz Alta</h4>
+                <p class="text-[11px] text-slate-500">Escucha los textos en la pantalla</p>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" onchange="toggleVoice()" ${state.voiceEnabled ? 'checked' : ''} class="sr-only peer">
+              <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+            </label>
+          </div>
+
+          <hr class="border-slate-100" />
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl bg-amber-50 p-2 rounded-xl">🌅</span>
+              <div>
+                <h4 class="font-title text-sm text-slate-800">Modo Sepia</h4>
+                <p class="text-[11px] text-slate-500">Filtro cálido para vista cansada</p>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" onchange="toggleSepia()" ${state.sepiaMode ? 'checked' : ''} class="sr-only peer">
+              <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+            </label>
+          </div>
+
+          <hr class="border-slate-100" />
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl bg-blue-50 p-2 rounded-xl">👁️</span>
+              <div>
+                <h4 class="font-title text-sm text-slate-800">Alto Contraste</h4>
+                <p class="text-[11px] text-slate-500">Resalta bordes y elementos</p>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" onchange="toggleContrast()" ${state.contrastMode ? 'checked' : ''} class="sr-only peer">
+              <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Compras y Accesorios
+  function buyHat(hatId, price) {
+    if (state.stars >= price) {
+      state.stars -= price;
+      state.unlockedHats.push(hatId);
+      state.equippedHat = hatId;
+      updateStarDisplay();
+      navigateTo('shop');
+      confetti({ particleCount: 50, spread: 50 });
+    } else {
+      alert('¡Necesitas más estrellas! Completa retos para conseguirlas. ⭐');
+    }
+  }
+
+  function equipHat(hatId) {
+    state.equippedHat = hatId;
+    navigateTo('shop');
+  }
+
+  function getHatIcon(hatId) {
+    const item = shopItems.find(i => i.id === hatId);
+    return item ? item.icon : '';
+  }
+
+  function updateStarDisplay() {
+    const el = document.getElementById('star-count');
+    if (el) el.innerText = state.stars;
+  }
+
+  // Funciones Accesibilidad
+  function toggleVoice() {
+    state.voiceEnabled = !state.voiceEnabled;
+    const btn = document.getElementById('voice-btn');
+    if (btn) {
+      btn.className = state.voiceEnabled 
+        ? 'p-1.5 rounded-full bg-purple-600 text-white shadow-md' 
+        : 'p-1.5 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200';
+    }
+    if (state.voiceEnabled) {
+      speakCurrentText();
+    } else {
+      window.speechSynthesis.cancel();
+    }
+  }
+
+  function speakCurrentText() {
+    if (!state.voiceEnabled) return;
+    window.speechSynthesis.cancel();
+
+    const appContent = document.getElementById('app-content');
+    if (!appContent) return;
+
+    const textToRead = appContent.innerText.replace(/[\u1F600-\u1F6FF]/g, '');
+    const utterance = new SpeechSynthesisUtterance(textToRead);
+    utterance.lang = 'es-ES';
+    utterance.rate = 0.95;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function toggleSepia() {
+    state.sepiaMode = !state.sepiaMode;
+    const container = document.getElementById('phone-container');
+    if (state.sepiaMode) {
+      container.classList.add('sepia-mode');
+    } else {
+      container.classList.remove('sepia-mode');
+    }
+  }
+
+  function toggleContrast() {
+    state.contrastMode = !state.contrastMode;
+    const container = document.getElementById('phone-container');
+    if (state.contrastMode) {
+      container.classList.add('high-contrast');
+    } else {
+      container.classList.remove('high-contrast');
+    }
+  }
+
+  // Iniciar aplicación al cargar
+  window.onload = function() {
+    navigateTo('home');
+  };
+</script>
+</body>
+</html>
